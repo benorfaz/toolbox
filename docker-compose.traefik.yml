@@ -21,7 +21,7 @@ services:
       - traefik
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.toolbox.rule=Host(`${DOMAIN}`) || Host(`pdf.${DOMAIN}`) || Host(`chef.${DOMAIN}`) || Host(`draw.${DOMAIN}`) || Host(`drawio.${DOMAIN}`)"
+      - "traefik.http.routers.toolbox.rule=Host(`${DOMAIN}`) || Host(`pdf.${DOMAIN}`) || Host(`chef.${DOMAIN}`) || Host(`draw.${DOMAIN}`) || Host(`drawio.${DOMAIN}`) || Host(`it.${DOMAIN}`)"
       - "traefik.http.routers.toolbox.entrypoints=${TRAEFIK_ENTRYPOINT:-websecure}"
       - "traefik.http.routers.toolbox.tls=true"
       - "traefik.http.routers.toolbox.tls.certresolver=${TRAEFIK_CERTRESOLVER:-letsencrypt}"

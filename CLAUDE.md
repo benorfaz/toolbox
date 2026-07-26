@@ -5,7 +5,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## What this is
 
 Self-hosted utilities hub for `tools.example.com`: a landing page plus
-BentoPDF, CyberChef, Excalidraw and draw.io. There is no application code to compile
+BentoPDF, CyberChef, Excalidraw, draw.io and IT Tools. There is no application code to compile
 and no test suite — the repo is a Docker packaging of third-party static apps
 plus one hand-written HTML landing page.
 
@@ -41,7 +41,7 @@ Caddyfile site addresses (`{$SCHEME:http}://pdf.{$DOMAIN:localhost}` etc.):
   `SCHEME=https` → Caddy provisions Let's Encrypt automatically. DNS needs
   the apex plus `*.tools.example.com`.
 
-Routing is subdomain-based (`pdf.`, `chef.`, `draw.`, `drawio.`), **not** path-based:
+Routing is subdomain-based (`pdf.`, `chef.`, `draw.`, `drawio.`, `it.`), **not** path-based:
 Excalidraw's build only works served from the site root. Don't try to move
 tools under paths without checking that constraint.
 

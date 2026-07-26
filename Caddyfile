@@ -42,3 +42,10 @@
 	root * /srv/drawio
 	import static
 }
+
+{$SCHEME:http}://it.{$DOMAIN:localhost} {
+	root * /srv/ittools
+	# IT Tools is a SPA — route unknown paths back to index.html
+	try_files {path} /index.html
+	import static
+}

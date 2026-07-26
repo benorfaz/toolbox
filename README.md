@@ -9,6 +9,7 @@ Self-hosted browser utilities behind one domain, in one container.
 | [CyberChef](https://github.com/gchq/CyberChef) — data Swiss-army knife | http://chef.localhost | https://chef.tools.example.com |
 | [Excalidraw](https://github.com/excalidraw/excalidraw) — whiteboard | http://draw.localhost | https://draw.tools.example.com |
 | [draw.io](https://github.com/jgraph/drawio) — structured diagrams | http://drawio.localhost | https://drawio.tools.example.com |
+| [IT Tools](https://github.com/corentinth/it-tools) — dev utilities | http://it.localhost | https://it.tools.example.com |
 
 All three tools run entirely in the browser (WASM/JS) — no backend, no
 database, nothing leaves your machine. The whole stack is **one Caddy
