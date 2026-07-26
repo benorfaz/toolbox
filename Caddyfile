@@ -1,0 +1,36 @@
+# One virtual host per tool, all served by this single Caddy instance.
+#
+# DOMAIN / SCHEME come from docker-compose environment:
+#   local (defaults):  http://localhost, http://pdf.localhost, ...
+#   production (.env): https://tools.example.com, https://pdf.tools.example.com, ...
+# With SCHEME=https Caddy provisions Let's Encrypt certificates automatically.
+
+(static) {
+	encode zstd gzip
+	file_server {
+		# BentoPDF ships pre-compressed .br/.gz assets — serve them as-is
+		precompressed br gzip
+	}
+}
+
+{$SCHEME:http}://{$DOMAIN:localhost} {
+	root * /srv/landing
+	import static
+}
+
+{$SCHEME:http}://pdf.{$DOMAIN:localhost} {
+	root * /srv/bentopdf
+	import static
+}
+
+{$SCHEME:http}://chef.{$DOMAIN:localhost} {
+	root * /srv/cyberchef
+	import static
+}
+
+{$SCHEME:http}://draw.{$DOMAIN:localhost} {
+	root * /srv/excalidraw
+	# Excalidraw is a SPA — route unknown paths back to index.html
+	try_files {path} /index.html
+	import static
+}

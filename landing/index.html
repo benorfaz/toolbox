@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Toolbox</title>
+<meta name="description" content="Self-hosted utilities: BentoPDF, CyberChef, Excalidraw. All processing happens in your browser.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%230c0e10'/%3E%3Crect x='6' y='13' width='20' height='13' fill='none' stroke='%23ff6a00' stroke-width='2.5'/%3E%3Cpath d='M12 13v-4h8v4' fill='none' stroke='%23ff6a00' stroke-width='2.5'/%3E%3C/svg%3E">
+<style>
+  :root {
+    --bg: #0c0e10;
+    --panel: #111417;
+    --ink: #e8e4da;
+    --muted: #79766e;
+    --faint: #3a3d40;
+    --accent: #ff6a00;
+    --accent-dim: #b34a00;
+    --hairline: #26292c;
+    --mono: "Berkeley Mono", "JetBrains Mono", "IBM Plex Mono", "SF Mono",
+            ui-monospace, "Cascadia Code", Menlo, Consolas, monospace;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { -webkit-text-size-adjust: 100%; }
+
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--mono);
+    font-size: 15px;
+    line-height: 1.55;
+    min-height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    /* blueprint grid */
+    background-image:
+      linear-gradient(var(--hairline) 1px, transparent 1px),
+      linear-gradient(90deg, var(--hairline) 1px, transparent 1px);
+    background-size: 72px 72px;
+    background-position: center top;
+  }
+
+  /* film grain overlay */
+  body::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    opacity: .05;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='240' height='240' filter='url(%23n)'/%3E%3C/svg%3E");
+    z-index: 3;
+  }
+
+  .wrap {
+    width: min(960px, 100% - 3rem);
+    margin-inline: auto;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ── header ─────────────────────────────── */
+  header {
+    padding: 2.2rem 0 0;
+    animation: rise .6s cubic-bezier(.2,.7,.2,1) both;
+  }
+
+  .meta-line {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    font-size: .72rem;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: var(--muted);
+    border-bottom: 1px solid var(--hairline);
+    padding-bottom: .8rem;
+  }
+
+  .meta-line .dot { color: var(--accent); }
+
+  h1 {
+    font-size: clamp(3rem, 11vw, 6.5rem);
+    font-weight: 800;
+    letter-spacing: -.04em;
+    text-transform: uppercase;
+    line-height: .95;
+    margin: 2.4rem 0 .8rem;
+  }
+
+  h1 .bracket { color: var(--accent); }
+
+  .tagline {
+    color: var(--muted);
+    max-width: 46ch;
+    margin-bottom: 3.2rem;
+  }
+
+  .tagline b { color: var(--ink); font-weight: 500; }
+
+  /* ── tool index ─────────────────────────── */
+  .index-head {
+    display: grid;
+    grid-template-columns: 3.4rem 1fr auto;
+    font-size: .68rem;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    padding: 0 .9rem .55rem;
+  }
+
+  ul.tools { list-style: none; }
+
+  .tool {
+    border-top: 1px solid var(--hairline);
+    animation: rise .6s cubic-bezier(.2,.7,.2,1) both;
+  }
+  .tool:last-child { border-bottom: 1px solid var(--hairline); }
+  .tool:nth-child(1) { animation-delay: .08s; }
+  .tool:nth-child(2) { animation-delay: .16s; }
+  .tool:nth-child(3) { animation-delay: .24s; }
+
+  .tool a {
+    display: grid;
+    grid-template-columns: 3.4rem 1fr auto;
+    align-items: baseline;
+    gap: 0 1rem;
+    padding: 1.35rem .9rem;
+    text-decoration: none;
+    color: inherit;
+    background: color-mix(in srgb, var(--panel) 82%, transparent);
+    transition: background .18s ease;
+    position: relative;
+  }
+
+  .tool a::before {          /* accent rail on hover */
+    content: "";
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 3px;
+    background: var(--accent);
+    transform: scaleY(0);
+    transform-origin: top;
+    transition: transform .22s cubic-bezier(.2,.7,.2,1);
+  }
+
+  .tool a:hover, .tool a:focus-visible { background: var(--panel); }
+  .tool a:hover::before, .tool a:focus-visible::before { transform: scaleY(1); }
+
+  .num {
+    color: var(--accent-dim);
+    font-size: .8rem;
+    transition: color .18s ease;
+  }
+  .tool a:hover .num { color: var(--accent); }
+
+  .tool-name {
+    font-size: clamp(1.35rem, 3.4vw, 1.9rem);
+    font-weight: 700;
+    letter-spacing: -.02em;
+  }
+
+  .tool-desc {
+    grid-column: 2;
+    color: var(--muted);
+    font-size: .85rem;
+    max-width: 52ch;
+    margin-top: .35rem;
+  }
+
+  .tool-tags {
+    grid-column: 2;
+    margin-top: .7rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: .45rem;
+  }
+
+  .tag {
+    font-size: .64rem;
+    letter-spacing: .09em;
+    text-transform: uppercase;
+    color: var(--muted);
+    border: 1px solid var(--faint);
+    padding: .18rem .5rem;
+  }
+
+  .go {
+    grid-row: 1;
+    grid-column: 3;
+    align-self: center;
+    color: var(--muted);
+    font-size: 1.15rem;
+    transition: color .18s ease, transform .22s cubic-bezier(.2,.7,.2,1);
+  }
+  .tool a:hover .go { color: var(--accent); transform: translateX(.35rem); }
+
+  /* ── footer ─────────────────────────────── */
+  footer {
+    margin-top: auto;
+    padding: 2.6rem 0 2rem;
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: .6rem 2rem;
+    font-size: .7rem;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  footer .ok { color: var(--accent); }
+
+  @keyframes rise {
+    from { opacity: 0; transform: translateY(14px); }
+    to   { opacity: 1; transform: none; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    header, .tool { animation: none; }
+    .tool a, .tool a::before, .go { transition: none; }
+  }
+
+  @media (max-width: 560px) {
+    .index-head, .tool a { grid-template-columns: 2.2rem 1fr auto; }
+    .tool a { padding-inline: .6rem; }
+  }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div class="meta-line">
+        <span>toolbox <span class="dot">●</span> utilities</span>
+        <span>self-hosted / no tracking</span>
+      </div>
+      <h1><span class="bracket">[</span>Toolbox<span class="bracket">]</span></h1>
+      <p class="tagline">
+        A small rack of utilities, hosted in-house. Every tool below runs
+        <b>entirely in your browser</b> — files and data never leave your machine.
+      </p>
+    </header>
+
+    <main>
+      <div class="index-head">
+        <span>№</span><span>Tool</span><span aria-hidden="true"></span>
+      </div>
+      <ul class="tools">
+        <li class="tool">
+          <a data-sub="pdf" href="http://pdf.localhost">
+            <span class="num">01</span>
+            <span class="tool-name">BentoPDF</span>
+            <span class="go" aria-hidden="true">→</span>
+            <span class="tool-desc">The complete PDF workbench — merge, split, compress,
+              convert, rotate, sign and redact, processed locally via WebAssembly.</span>
+            <span class="tool-tags">
+              <span class="tag">PDF</span><span class="tag">WASM</span><span class="tag">Offline</span>
+            </span>
+          </a>
+        </li>
+        <li class="tool">
+          <a data-sub="chef" href="http://chef.localhost">
+            <span class="num">02</span>
+            <span class="tool-name">CyberChef</span>
+            <span class="go" aria-hidden="true">→</span>
+            <span class="tool-desc">The cyber Swiss-army knife — encode, decode, hash,
+              compress, parse and analyse data with hundreds of chainable operations.</span>
+            <span class="tool-tags">
+              <span class="tag">Encoding</span><span class="tag">Crypto</span><span class="tag">Forensics</span>
+            </span>
+          </a>
+        </li>
+        <li class="tool">
+          <a data-sub="draw" href="http://draw.localhost">
+            <span class="num">03</span>
+            <span class="tool-name">Excalidraw</span>
+            <span class="go" aria-hidden="true">→</span>
+            <span class="tool-desc">A virtual whiteboard with a hand-drawn feel — sketch
+              diagrams, wireframes and ideas, then export to PNG or SVG.</span>
+            <span class="tool-tags">
+              <span class="tag">Whiteboard</span><span class="tag">Diagrams</span><span class="tag">SVG</span>
+            </span>
+          </a>
+        </li>
+      </ul>
+    </main>
+
+    <footer>
+      <span><span class="ok">▮</span> 3 tools mounted</span>
+      <span>100% client-side processing</span>
+      <span id="host"></span>
+    </footer>
+  </div>
+
+<script>
+  // Point tool links at sibling subdomains of wherever this page is served
+  // (works for localhost and any production domain alike).
+  const { hostname, protocol, port } = location;
+  const suffix = port ? ":" + port : "";
+  document.querySelectorAll("a[data-sub]").forEach(a => {
+    a.href = `${protocol}//${a.dataset.sub}.${hostname}${suffix}/`;
+  });
+  document.getElementById("host").textContent = hostname;
+</script>
+</body>
+</html>
