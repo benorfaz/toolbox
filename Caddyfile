@@ -7,6 +7,9 @@
 
 (static) {
 	encode zstd gzip
+	# Private hub — keep all of it out of search engines. No robots.txt
+	# Disallow on purpose: crawlers must be able to fetch pages to see this.
+	header X-Robots-Tag "noindex, nofollow"
 	file_server {
 		# BentoPDF ships pre-compressed .br/.gz assets — serve them as-is
 		precompressed br gzip
