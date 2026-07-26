@@ -7,27 +7,53 @@
 
 (static) {
 	encode zstd gzip
-	# Private hub — keep all of it out of search engines. No robots.txt
-	# Disallow on purpose: crawlers must be able to fetch pages to see this.
-	header X-Robots-Tag "noindex, nofollow"
+	header {
+		# Private hub — keep all of it out of search engines. No robots.txt
+		# Disallow on purpose: crawlers must be able to fetch pages to see this.
+		X-Robots-Tag "noindex, nofollow"
+		X-Content-Type-Options "nosniff"
+		X-Frame-Options "SAMEORIGIN"
+		Referrer-Policy "strict-origin-when-cross-origin"
+		Permissions-Policy "geolocation=(), payment=(), usb=()"
+		# Ignored over plain HTTP (local mode), effective behind TLS in prod
+		Strict-Transport-Security "max-age=31536000; includeSubDomains"
+	}
 	file_server {
 		# BentoPDF ships pre-compressed .br/.gz assets — serve them as-is
 		precompressed br gzip
 	}
 }
 
+# Baseline CSP for the third-party tools: allows the WASM / web-worker / blob
+# machinery they need, but confines every network fetch to the tool's own
+# origin — the policy-level enforcement of "data never leaves your machine".
+# Consequence: optional cloud features (Excalidraw share links, Mermaid
+# remote rendering, etc.) are deliberately blocked.
+(csp_app) {
+	header Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' 'wasm-unsafe-eval' blob:; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; worker-src 'self' blob: data:; child-src 'self' blob: data:; media-src 'self' data: blob:; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'self'"
+}
+
 {$SCHEME:http}://{$DOMAIN:localhost} {
 	root * /srv/landing
+	# The landing page is ours and fully inline — much stricter CSP
+	header Content-Security-Policy "default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data:; base-uri 'none'; form-action 'none'; frame-ancestors 'none'"
 	import static
 }
 
 {$SCHEME:http}://pdf.{$DOMAIN:localhost} {
 	root * /srv/bentopdf
+	# BentoPDF's own nginx sets these: its WASM uses SharedArrayBuffer,
+	# which browsers only enable in a cross-origin-isolated context
+	header Cross-Origin-Opener-Policy "same-origin"
+	header Cross-Origin-Embedder-Policy "require-corp"
+	header Cross-Origin-Resource-Policy "cross-origin"
+	import csp_app
 	import static
 }
 
 {$SCHEME:http}://chef.{$DOMAIN:localhost} {
 	root * /srv/cyberchef
+	import csp_app
 	import static
 }
 
@@ -35,11 +61,13 @@
 	root * /srv/excalidraw
 	# Excalidraw is a SPA — route unknown paths back to index.html
 	try_files {path} /index.html
+	import csp_app
 	import static
 }
 
 {$SCHEME:http}://drawio.{$DOMAIN:localhost} {
 	root * /srv/drawio
+	import csp_app
 	import static
 }
 
@@ -47,6 +75,7 @@
 	root * /srv/ittools
 	# IT Tools is a SPA — route unknown paths back to index.html
 	try_files {path} /index.html
+	import csp_app
 	import static
 }
 
@@ -54,6 +83,7 @@
 	root * /srv/jsoncrack
 	# Next.js static export: /editor → editor.html
 	try_files {path} {path}.html /index.html
+	import csp_app
 	import static
 }
 
@@ -61,6 +91,7 @@
 	root * /srv/drawdb
 	# drawDB is a SPA — route unknown paths back to index.html
 	try_files {path} /index.html
+	import csp_app
 	import static
 }
 
@@ -68,6 +99,7 @@
 	root * /srv/mermaid
 	# SvelteKit static export: /edit → edit.html
 	try_files {path} {path}.html /index.html
+	import csp_app
 	import static
 }
 
@@ -75,5 +107,6 @@
 	root * /srv/vert
 	# SvelteKit static export
 	try_files {path} {path}.html /index.html
+	import csp_app
 	import static
 }

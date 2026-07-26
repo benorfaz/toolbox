@@ -62,7 +62,10 @@ production — keep the hardcoded production `href` as the no-JS fallback.
 1. `Dockerfile`: add its image as a build stage, copy its static files to
    `/srv/<name>`.
 2. `Caddyfile`: add a `{$SCHEME:http}://<sub>.{$DOMAIN:localhost}` vhost
-   (add `try_files {path} /index.html` if it's a SPA).
+   with `import csp_app` + `import static` (add `try_files {path}
+   /index.html` if it's a SPA). After adding, load the tool in a browser
+   and check the console for CSP violations — relax the (csp_app) snippet
+   only with the specific source the tool needs.
 3. `landing/index.html`: add a card with `data-sub="<sub>"`.
 4. Design decisions and rationale live in
    `docs/specs/2026-07-26-toolbox-design.md`; update it if the architecture
