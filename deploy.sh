@@ -76,10 +76,9 @@ if [ ! -f "$APP_DIR/.env" ]; then
   } | $SUDO tee "$APP_DIR/.env" >/dev/null
 else
   log "Keeping existing $APP_DIR/.env"
-  # honour a TRAEFIK=1 persisted on a previous run
-  if [ -z "${TRAEFIK:-}" ] && grep -q '^TRAEFIK=1' "$APP_DIR/.env"; then
-    TRAEFIK=1
-  fi
+  # pick up persisted values (explicit env vars still win)
+  [ -z "${DOMAIN:-}" ] && DOMAIN=$(sed -n 's/^DOMAIN=//p' "$APP_DIR/.env")
+  [ -z "${TRAEFIK:-}" ] && TRAEFIK=$(sed -n 's/^TRAEFIK=//p' "$APP_DIR/.env")
 fi
 
 # ── Build + run ──────────────────────────────────────────────────────────────
