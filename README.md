@@ -10,6 +10,10 @@ Self-hosted browser utilities behind one domain, in one container.
 | [Excalidraw](https://github.com/excalidraw/excalidraw) — whiteboard | http://draw.localhost | https://draw.tools.example.com |
 | [draw.io](https://github.com/jgraph/drawio) — structured diagrams | http://drawio.localhost | https://drawio.tools.example.com |
 | [IT Tools](https://github.com/corentinth/it-tools) — dev utilities | http://it.localhost | https://it.tools.example.com |
+| [JSON Crack](https://github.com/AykutSarac/jsoncrack.com) — JSON visualizer | http://json.localhost | https://json.tools.example.com |
+| [drawDB](https://github.com/drawdb-io/drawdb) — DB schema designer | http://db.localhost | https://db.tools.example.com |
+| [Mermaid Live](https://github.com/mermaid-js/mermaid-live-editor) — text-to-diagram | http://mermaid.localhost | https://mermaid.tools.example.com |
+| [VERT](https://github.com/VERT-sh/VERT) — file converter | http://vert.localhost | https://vert.tools.example.com |
 
 All three tools run entirely in the browser (WASM/JS) — no backend, no
 database, nothing leaves your machine. The whole stack is **one Caddy

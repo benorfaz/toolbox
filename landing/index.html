@@ -123,6 +123,10 @@
   .tool:nth-child(3) { animation-delay: .24s; }
   .tool:nth-child(4) { animation-delay: .32s; }
   .tool:nth-child(5) { animation-delay: .4s; }
+  .tool:nth-child(6) { animation-delay: .48s; }
+  .tool:nth-child(7) { animation-delay: .56s; }
+  .tool:nth-child(8) { animation-delay: .64s; }
+  .tool:nth-child(9) { animation-delay: .72s; }
 
   .tool a {
     display: grid;
@@ -310,11 +314,59 @@
             </span>
           </a>
         </li>
+        <li class="tool">
+          <a data-sub="json" href="http://json.localhost">
+            <span class="num">06</span>
+            <span class="tool-name">JSON Crack</span>
+            <span class="go" aria-hidden="true">→</span>
+            <span class="tool-desc">Paste JSON, YAML, CSV or XML and see it as an
+              interactive graph — explore, search and export the structure.</span>
+            <span class="tool-tags">
+              <span class="tag">JSON</span><span class="tag">Visualization</span><span class="tag">Graph</span>
+            </span>
+          </a>
+        </li>
+        <li class="tool">
+          <a data-sub="db" href="http://db.localhost">
+            <span class="num">07</span>
+            <span class="tool-name">drawDB</span>
+            <span class="go" aria-hidden="true">→</span>
+            <span class="tool-desc">Design database schemas visually — tables, relations
+              and constraints, exported as SQL for MySQL, Postgres, SQLite and more.</span>
+            <span class="tool-tags">
+              <span class="tag">Database</span><span class="tag">Schema</span><span class="tag">SQL</span>
+            </span>
+          </a>
+        </li>
+        <li class="tool">
+          <a data-sub="mermaid" href="http://mermaid.localhost">
+            <span class="num">08</span>
+            <span class="tool-name">Mermaid Live</span>
+            <span class="go" aria-hidden="true">→</span>
+            <span class="tool-desc">Write Mermaid text, get diagrams — flowcharts,
+              sequence and state diagrams, ready to paste into READMEs and docs.</span>
+            <span class="tool-tags">
+              <span class="tag">Diagrams</span><span class="tag">Text-to-chart</span><span class="tag">Docs</span>
+            </span>
+          </a>
+        </li>
+        <li class="tool">
+          <a data-sub="vert" href="http://vert.localhost">
+            <span class="num">09</span>
+            <span class="tool-name">VERT</span>
+            <span class="go" aria-hidden="true">→</span>
+            <span class="tool-desc">Convert files between formats — images, audio and
+              documents, processed locally with WebAssembly. No size limits.</span>
+            <span class="tool-tags">
+              <span class="tag">Converter</span><span class="tag">WASM</span><span class="tag">Files</span>
+            </span>
+          </a>
+        </li>
       </ul>
     </main>
 
     <footer>
-      <span><span class="ok">▮</span> 5 tools mounted</span>
+      <span><span class="ok">▮</span> 9 tools mounted</span>
       <span>100% client-side processing</span>
       <span id="host"></span>
     </footer>

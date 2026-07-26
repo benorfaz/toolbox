@@ -49,3 +49,31 @@
 	try_files {path} /index.html
 	import static
 }
+
+{$SCHEME:http}://json.{$DOMAIN:localhost} {
+	root * /srv/jsoncrack
+	# Next.js static export: /editor → editor.html
+	try_files {path} {path}.html /index.html
+	import static
+}
+
+{$SCHEME:http}://db.{$DOMAIN:localhost} {
+	root * /srv/drawdb
+	# drawDB is a SPA — route unknown paths back to index.html
+	try_files {path} /index.html
+	import static
+}
+
+{$SCHEME:http}://mermaid.{$DOMAIN:localhost} {
+	root * /srv/mermaid
+	# SvelteKit static export: /edit → edit.html
+	try_files {path} {path}.html /index.html
+	import static
+}
+
+{$SCHEME:http}://vert.{$DOMAIN:localhost} {
+	root * /srv/vert
+	# SvelteKit static export
+	try_files {path} {path}.html /index.html
+	import static
+}
