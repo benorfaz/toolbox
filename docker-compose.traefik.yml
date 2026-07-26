@@ -1,0 +1,33 @@
+# Alternative compose file for hosts where Traefik already owns ports 80/443
+# (requires Traefik's Docker provider). No ports are published: Traefik
+# terminates TLS and forwards to Caddy on the shared network; Caddy still
+# routes the four hostnames internally via the Host header.
+#
+#   DOMAIN=tools.example.com TRAEFIK_NETWORK=proxy \
+#     docker compose -f docker-compose.traefik.yml up -d --build
+#
+# Or simply: TRAEFIK=1 deploy.sh (see README).
+
+services:
+  toolbox:
+    build: .
+    image: toolbox
+    container_name: toolbox
+    restart: unless-stopped
+    environment:
+      DOMAIN: ${DOMAIN:?set DOMAIN, e.g. DOMAIN=tools.example.com}
+      SCHEME: http # Traefik terminates TLS; Caddy serves plain HTTP inside
+    networks:
+      - traefik
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.toolbox.rule=Host(`${DOMAIN}`) || Host(`pdf.${DOMAIN}`) || Host(`chef.${DOMAIN}`) || Host(`draw.${DOMAIN}`)"
+      - "traefik.http.routers.toolbox.entrypoints=${TRAEFIK_ENTRYPOINT:-websecure}"
+      - "traefik.http.routers.toolbox.tls=true"
+      - "traefik.http.routers.toolbox.tls.certresolver=${TRAEFIK_CERTRESOLVER:-letsencrypt}"
+      - "traefik.http.services.toolbox.loadbalancer.server.port=80"
+
+networks:
+  traefik:
+    external: true
+    name: ${TRAEFIK_NETWORK:-traefik}

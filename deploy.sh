@@ -11,6 +11,11 @@
 #
 # DOMAIN is only needed on the first run — after that it lives in .env.
 # Other overrides: REPO_URL, APP_DIR (default /opt/toolbox), SCHEME.
+#
+# If Traefik already owns ports 80/443 on this host, add TRAEFIK=1 (and
+# optionally TRAEFIK_NETWORK / TRAEFIK_ENTRYPOINT / TRAEFIK_CERTRESOLVER):
+# the stack then attaches to Traefik's network instead of binding ports.
+# Like DOMAIN, these are persisted to .env on first run.
 
 set -euo pipefail
 
@@ -57,35 +62,56 @@ fi
 
 # ── Production config (kept if it already exists) ────────────────────────────
 if [ ! -f "$APP_DIR/.env" ]; then
-  log "Writing $APP_DIR/.env (DOMAIN=$DOMAIN, SCHEME=$SCHEME)"
-  $SUDO tee "$APP_DIR/.env" >/dev/null <<EOF
-DOMAIN=$DOMAIN
-SCHEME=$SCHEME
-EOF
+  log "Writing $APP_DIR/.env (DOMAIN=$DOMAIN)"
+  {
+    echo "DOMAIN=$DOMAIN"
+    if [ "${TRAEFIK:-0}" = 1 ]; then
+      echo "TRAEFIK=1"
+      echo "TRAEFIK_NETWORK=${TRAEFIK_NETWORK:-traefik}"
+      echo "TRAEFIK_ENTRYPOINT=${TRAEFIK_ENTRYPOINT:-websecure}"
+      echo "TRAEFIK_CERTRESOLVER=${TRAEFIK_CERTRESOLVER:-letsencrypt}"
+    else
+      echo "SCHEME=$SCHEME"
+    fi
+  } | $SUDO tee "$APP_DIR/.env" >/dev/null
 else
   log "Keeping existing $APP_DIR/.env"
+  # honour a TRAEFIK=1 persisted on a previous run
+  if [ -z "${TRAEFIK:-}" ] && grep -q '^TRAEFIK=1' "$APP_DIR/.env"; then
+    TRAEFIK=1
+  fi
 fi
 
 # ── Build + run ──────────────────────────────────────────────────────────────
-log "Building and starting the stack (pulls latest tool images)"
-$SUDO docker compose -f "$APP_DIR/docker-compose.yml" --project-directory "$APP_DIR" build --pull
-$SUDO docker compose -f "$APP_DIR/docker-compose.yml" --project-directory "$APP_DIR" up -d
+COMPOSE_YML="$APP_DIR/docker-compose.yml"
+[ "${TRAEFIK:-0}" = 1 ] && COMPOSE_YML="$APP_DIR/docker-compose.traefik.yml"
 
-log "Waiting for Caddy"
-sleep 2
-if curl -fsS -o /dev/null --max-time 5 http://localhost/; then
-  echo "  local HTTP check: OK"
+log "Building and starting the stack (pulls latest tool images)"
+$SUDO docker compose -f "$COMPOSE_YML" --project-directory "$APP_DIR" build --pull
+$SUDO docker compose -f "$COMPOSE_YML" --project-directory "$APP_DIR" up -d
+
+if [ "${TRAEFIK:-0}" = 1 ]; then
+  log "Traefik mode — no ports published; Traefik routes to the container"
 else
-  echo "  local HTTP check failed — inspect with: docker logs toolbox" >&2
+  log "Waiting for Caddy"
+  sleep 2
+  if curl -fsS -o /dev/null --max-time 5 http://localhost/; then
+    echo "  local HTTP check: OK"
+  else
+    echo "  local HTTP check failed — inspect with: docker logs toolbox" >&2
+  fi
 fi
 
 log "Done"
+PUB="$SCHEME"
+[ "${TRAEFIK:-0}" = 1 ] && PUB="https"
 cat <<EOF
-  Landing:   $SCHEME://$DOMAIN
-  Tools:     $SCHEME://pdf.$DOMAIN  $SCHEME://chef.$DOMAIN  $SCHEME://draw.$DOMAIN
+  Landing:   $PUB://$DOMAIN
+  Tools:     $PUB://pdf.$DOMAIN  $PUB://chef.$DOMAIN  $PUB://draw.$DOMAIN
 
   Checklist if this is a fresh server:
    - DNS: A records for $DOMAIN and *.$DOMAIN -> this server's IP
    - Firewall: ports 80 and 443 (tcp+udp) open
-  TLS certificates are provisioned automatically by Caddy on first request.
+  TLS certificates are provisioned automatically (Caddy, or Traefik in
+  TRAEFIK=1 mode) on first request.
 EOF

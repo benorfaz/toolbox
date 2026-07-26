@@ -40,6 +40,21 @@ curl -fsSL https://raw.githubusercontent.com/benorfaz/toolbox/main/deploy.sh | D
 `DOMAIN` is only required on the first run (it's persisted to `.env`).
 Other overrides: `REPO_URL`, `APP_DIR` (default `/opt/toolbox`), `SCHEME`.
 
+### Behind an existing reverse proxy (Traefik)
+
+If Traefik (with its Docker provider) already owns ports 80/443 on the host,
+deploy with [docker-compose.traefik.yml](docker-compose.traefik.yml) instead —
+no ports are published, Traefik terminates TLS and routes the four hostnames
+to the container:
+
+```sh
+curl -fsSL https://raw.githubusercontent.com/benorfaz/toolbox/main/deploy.sh | DOMAIN=tools.example.com TRAEFIK=1 TRAEFIK_NETWORK=proxy bash
+```
+
+Defaults: `TRAEFIK_NETWORK=traefik`, `TRAEFIK_ENTRYPOINT=websecure`,
+`TRAEFIK_CERTRESOLVER=letsencrypt` — set them to match your Traefik setup
+(all persisted to `.env` on first run).
+
 Caddy obtains and renews Let's Encrypt certificates automatically
 (ports 80/443 must be reachable).
 
