@@ -5,7 +5,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## What this is
 
 Self-hosted utilities hub for `tools.example.com`: a landing page plus
-BentoPDF, CyberChef and Excalidraw. There is no application code to compile
+BentoPDF, CyberChef, Excalidraw and draw.io. There is no application code to compile
 and no test suite — the repo is a Docker packaging of third-party static apps
 plus one hand-written HTML landing page.
 
@@ -26,9 +26,10 @@ plain HTML, so rebuilding the image (or a bind-mount) is how changes appear.
 
 The entire stack is **one container**. All three tools are pure client-side
 static apps, so `Dockerfile` uses their official images
-(`bentopdf/bentopdf`, `ghcr.io/gchq/cyberchef`, `excalidraw/excalidraw`) as
-build stages only, copying each one's `/usr/share/nginx/html` into
-`/srv/<name>` of a `caddy:2-alpine` image. `Caddyfile` maps one virtual host
+(`bentopdf/bentopdf`, `ghcr.io/gchq/cyberchef`, `excalidraw/excalidraw`,
+`jgraph/drawio`) as build stages only, copying each one's static files into
+`/srv/<name>` of a `caddy:2-alpine` image (draw.io's live in its Tomcat
+webapp dir; the servlets it ships are unused). `Caddyfile` maps one virtual host
 per tool. Deliberately no per-tool containers, no reverse proxy tier, no
 database — keep it that way unless a future tool genuinely needs a backend.
 
@@ -40,7 +41,7 @@ Caddyfile site addresses (`{$SCHEME:http}://pdf.{$DOMAIN:localhost}` etc.):
   `SCHEME=https` → Caddy provisions Let's Encrypt automatically. DNS needs
   the apex plus `*.tools.example.com`.
 
-Routing is subdomain-based (`pdf.`, `chef.`, `draw.`), **not** path-based:
+Routing is subdomain-based (`pdf.`, `chef.`, `draw.`, `drawio.`), **not** path-based:
 Excalidraw's build only works served from the site root. Don't try to move
 tools under paths without checking that constraint.
 

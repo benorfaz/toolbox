@@ -37,3 +37,8 @@
 	try_files {path} /index.html
 	import static
 }
+
+{$SCHEME:http}://drawio.{$DOMAIN:localhost} {
+	root * /srv/drawio
+	import static
+}

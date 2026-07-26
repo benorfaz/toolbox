@@ -26,8 +26,12 @@ sites.
                  │  pdf.tools.example.com   → /srv/bentopdf  │
                  │  chef.tools.example.com  → /srv/cyberchef │
                  │  draw.tools.example.com  → /srv/excalidraw│
+                 │  drawio.tools.example.com→ /srv/drawio    │
                  └────────────────────────────────────────────┘
 ```
+
+*(2026-07-26: draw.io added as a fourth tool — same pattern; its official
+image is Tomcat but the webapp is static, so only the webapp dir is copied.)*
 
 - **Build:** multi-stage Dockerfile copies the static assets out of each
   project's official image (`bentopdf/bentopdf`, `ghcr.io/gchq/cyberchef`,
