@@ -5,7 +5,21 @@
 #   production (.env): https://tools.example.com, https://pdf.tools.example.com, ...
 # With SCHEME=https Caddy provisions Let's Encrypt certificates automatically.
 
+{
+	servers {
+		# Behind Traefik every request arrives from a private Docker address;
+		# trust X-Forwarded-For from there so access logs record the real
+		# visitor in client_ip. Harmless when Caddy is exposed directly.
+		trusted_proxies static private_ranges
+	}
+}
+
 (static) {
+	# JSON access log to stdout → `docker logs toolbox` (size capped in compose)
+	log {
+		output stdout
+		format json
+	}
 	encode zstd gzip
 	header {
 		# Private hub — keep all of it out of search engines. No robots.txt

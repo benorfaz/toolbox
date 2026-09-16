@@ -14,6 +14,11 @@ services:
     image: toolbox
     container_name: toolbox
     restart: unless-stopped
+    logging: # access logs go to stdout — cap disk use (5 × 10 MB)
+      driver: json-file
+      options:
+        max-size: 10m
+        max-file: "5"
     environment:
       DOMAIN: ${DOMAIN:?set DOMAIN, e.g. DOMAIN=tools.example.com}
       SCHEME: http # Traefik terminates TLS; Caddy serves plain HTTP inside

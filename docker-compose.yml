@@ -4,6 +4,11 @@ services:
     image: toolbox
     container_name: toolbox
     restart: unless-stopped
+    logging: # access logs go to stdout — cap disk use (5 × 10 MB)
+      driver: json-file
+      options:
+        max-size: 10m
+        max-file: "5"
     ports:
       - "${HTTP_PORT:-80}:80"
       - "${HTTPS_PORT:-443}:443"
