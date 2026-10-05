@@ -4,7 +4,6 @@
 #   local (defaults):  http://localhost, http://pdf.localhost, ...
 #   production (.env): https://tools.example.com, https://pdf.tools.example.com, ...
 # With SCHEME=https Caddy provisions Let's Encrypt certificates automatically.
-
 {
 	servers {
 		# Behind Traefik every request arrives from a private Docker address;
@@ -15,6 +14,20 @@
 }
 
 (static) {
+	# Optional HTTP basic auth, applied to every vhost that imports (static).
+	# The credentials live OUTSIDE this public repo: drop a file containing a
+	# `basic_auth` block into ./auth/ on the host (bind-mounted to
+	# /etc/caddy/auth) and it takes effect on the next restart. With no such
+	# file the glob matches nothing — Caddy logs a warning and the hub stays
+	# open, which is what local development wants.
+	#
+	#   mkdir -p auth && cat > auth/basic-auth.caddyfile <<'EOF'
+	#   basic_auth {
+	#       <user> <bcrypt hash from: docker exec toolbox caddy hash-password>
+	#   }
+	#   EOF
+	import auth/*.caddyfile
+
 	# JSON access log to stdout → `docker logs toolbox` (size capped in compose)
 	log {
 		output stdout

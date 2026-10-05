@@ -22,6 +22,9 @@ services:
     environment:
       DOMAIN: ${DOMAIN:?set DOMAIN, e.g. DOMAIN=tools.example.com}
       SCHEME: http # Traefik terminates TLS; Caddy serves plain HTTP inside
+    volumes:
+      # Optional basic-auth credentials, kept out of the repo (see Caddyfile)
+      - ./auth:/etc/caddy/auth:ro
     networks:
       - traefik
     labels:

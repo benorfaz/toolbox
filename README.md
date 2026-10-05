@@ -64,6 +64,31 @@ Defaults: `TRAEFIK_NETWORK=traefik`, `TRAEFIK_ENTRYPOINT=websecure`,
 Caddy obtains and renews Let's Encrypt certificates automatically
 (ports 80/443 must be reachable).
 
+## Password-protect the hub (optional)
+
+A public hub gets found: TLS certificates are published to Certificate
+Transparency logs, so crawlers and vulnerability scanners arrive within days
+even with `noindex`. To require a password on every vhost, create an `auth/`
+directory next to `docker-compose.yml` (git-ignored, bind-mounted read-only
+into the container) and restart:
+
+```sh
+mkdir -p auth
+docker exec -it toolbox caddy hash-password          # prints a bcrypt hash
+cat > auth/basic-auth.caddyfile <<'EOF'
+basic_auth {
+	<user> <bcrypt hash>
+}
+EOF
+chmod 600 auth/basic-auth.caddyfile
+docker compose up -d --force-recreate
+```
+
+With no file in `auth/` the hub stays open — Caddy just logs
+`No files matching import glob pattern`, which is what local development
+wants. Requests are logged either way: `docker logs toolbox` emits one JSON
+line per request, with the real visitor in `client_ip`.
+
 ## Update the tools
 
 ```sh
